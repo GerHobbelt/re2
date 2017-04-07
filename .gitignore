@@ -3,3 +3,17 @@
 core
 obj/
 benchlog.*
+
+
+_install
+_install/
+_install/**
+
+_builds
+_builds/
+_builds/**
+
+_logs
+_logs/
+_logs/**
+

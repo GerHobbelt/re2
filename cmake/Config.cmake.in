@@ -1,0 +1,10 @@
+# added by Luc Michalski - 2017
+
+@PACKAGE_INIT@
+
+if(@USEPCRE@)
+  find_package(pcre CONFIG REQUIRED)
+endif(@USEPCRE@)
+
+include("${CMAKE_CURRENT_LIST_DIR}/@targets_export_name@.cmake")
+check_required_components("@PROJECT_NAME@")
