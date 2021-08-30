@@ -82,7 +82,11 @@ class Bitmap256 {
   uint64_t words_[4];
 };
 
-int Bitmap256::FindNextSetBit(int c) const {
+int Bitmap256::FindNextSetBit(int c) const
+#if __has_feature( undefined_behavior_sanitizer )
+__attribute__(( no_sanitize( "unsigned-shift-base" ) ))
+#endif
+{
   DCHECK_GE(c, 0);
   DCHECK_LE(c, 255);
 

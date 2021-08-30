@@ -141,7 +141,11 @@ class DFA {
   };
 
   struct StateHash {
-    size_t operator()(const State* a) const {
+    size_t operator()(const State* a) const
+#if __has_feature( undefined_behavior_sanitizer )
+__attribute__(( no_sanitize( "implicit-integer-sign-change" ) ))
+#endif
+    {
       DCHECK(a != NULL);
       HashMix mix(a->flag_);
       for (int i = 0; i < a->ninst_; i++)

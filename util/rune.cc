@@ -26,7 +26,7 @@ enum
 	Bit2	= 5,
 	Bit3	= 4,
 	Bit4	= 3,
-	Bit5	= 2, 
+	Bit5	= 2,
 
 	T1	= ((1<<(Bit1+1))-1) ^ 0xFF,	/* 0000 0000 */
 	Tx	= ((1<<(Bitx+1))-1) ^ 0xFF,	/* 1000 0000 */
@@ -125,6 +125,11 @@ bad:
 
 int
 runetochar(char *str, const Rune *rune)
+#if __has_feature( undefined_behavior_sanitizer )
+__attribute__(( no_sanitize( "implicit-signed-integer-truncation" ) ))
+__attribute__(( no_sanitize( "implicit-unsigned-integer-truncation" ) ))
+__attribute__(( no_sanitize( "implicit-integer-sign-change" ) ))
+#endif
 {
 	/* Runes are signed, so convert to unsigned for range check. */
 	unsigned long c;

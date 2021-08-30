@@ -283,7 +283,11 @@ void Prog::Optimize() {
   }
 }
 
-uint32_t Prog::EmptyFlags(const StringPiece& text, const char* p) {
+uint32_t Prog::EmptyFlags(const StringPiece& text, const char* p)
+#if __has_feature( undefined_behavior_sanitizer )
+__attribute__(( no_sanitize( "implicit-integer-sign-change" ) ))
+#endif
+{
   int flags = 0;
 
   // ^ and \A

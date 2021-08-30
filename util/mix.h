@@ -21,7 +21,12 @@ class HashMix {
  public:
   HashMix() : hash_(1) {}
   explicit HashMix(size_t val) : hash_(val + 83) {}
-  void Mix(size_t val) {
+  void Mix(size_t val)
+#if __has_feature( undefined_behavior_sanitizer )
+__attribute__(( no_sanitize( "unsigned-integer-overflow" ) ))
+__attribute__(( no_sanitize( "unsigned-shift-base" ) ))
+#endif
+  {
     static const size_t kMul = static_cast<size_t>(0xdc3eb94af8ab4c93ULL);
     hash_ *= kMul;
     hash_ = ((hash_ << 19) |
