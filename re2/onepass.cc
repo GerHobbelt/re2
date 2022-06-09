@@ -56,6 +56,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include "util/util.h"
 #include "util/logging.h"
@@ -437,7 +438,7 @@ bool Prog::IsOnePass() {
     stack[nstack].id = id;
     stack[nstack++].cond = 0;
     while (nstack > 0) {
-      int id = stack[--nstack].id;
+      id = stack[--nstack].id;
       uint32_t cond = stack[nstack].cond;
 
     Loop:
@@ -611,9 +612,9 @@ bool Prog::IsOnePass() {
     LOG(ERROR) << "nodes:\n" << dump;
   }
 
-  dfa_mem_ -= nalloc*statesize;
+  dfa_mem_ -= static_cast<int64_t>(nalloc*statesize);
   onepass_nodes_ = PODArray<uint8_t>(nalloc*statesize);
-  memmove(onepass_nodes_.data(), nodes.data(), nalloc*statesize);
+  memmove(onepass_nodes_.data(), nodes.data(), static_cast<size_t>(nalloc*statesize));
   return true;
 
 fail:

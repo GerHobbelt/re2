@@ -641,7 +641,8 @@ void Prog::Flatten() {
     list_heads_ = PODArray<uint16_t>(size_);
     // 0xFF makes it more obvious if we try to look up a non-head.
     memset(list_heads_.data(), 0xFF, size_*sizeof list_heads_[0]);
-    for (int i = 0; i < list_count_; ++i)
+    for (uint16_t i = 0, size = static_cast<uint16_t>(list_count_);
+         i < size; ++i)
       list_heads_[flatmap[i]] = i;
   }
 

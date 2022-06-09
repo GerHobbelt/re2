@@ -22,6 +22,10 @@ option(RE2_BUILD_TESTING "enable testing for RE2" ON)
 set(SONAME 10)
 
 set(EXTRA_TARGET_LINK_LIBRARIES)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
+        -Wall -Werror -Wno-overloaded-virtual -fvisibility=hidden \
+        -Wno-unused-const-variable -Wno-unused-function \
+        -Wno-unused-value -Wno-nonnull")
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   if(MSVC_VERSION LESS 1900)
