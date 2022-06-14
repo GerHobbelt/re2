@@ -22,8 +22,59 @@ option(RE2_BUILD_TESTING "enable testing for RE2" ON)
 set(SONAME 10)
 
 set(EXTRA_TARGET_LINK_LIBRARIES)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-overloaded-virtual -Wno-unused-const-variable")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function -Wno-unused-value -Wno-nonnull -fvisibility=hidden")
+if(MSVC)
+  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4 /WX" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX")
+  endif()
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4100") # unreferenced formal parameter
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4324") # structure was padded due to alignment specifier
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+
+  add_definitions(-D_WIN32_WINNT=0x0600)
+else()
+  if(NOT ANDROID AND NOT IOS AND NOT EMSCRIPTEN)
+    if(APPLE)
+      execute_process(COMMAND uname -m OUTPUT_VARIABLE arch OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if ("${arch}" STREQUAL "arm64")
+        set(APPLE_M1 TRUE)
+      endif()
+    endif()
+
+    if(APPLE_M1)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=apple-m1")
+    else()
+      if(ARCH_NATIVE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+      else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=core2")
+
+      endif()
+    endif()
+  endif()
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread ")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pthread -fvisibility=hidden")
+
+  if (EMSCRIPTEN)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -s USE_PTHREADS=1 \
+                                                     -s WASM_WORKERS=0 \
+                                                     -s DISABLE_EXCEPTION_CATCHING=0 \
+                                                     -s USE_BOOST_HEADERS=1 \
+                                                     -Wno-unqualified-std-cast-call \
+                                                     -Wno-unused-but-set-variable")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
+  endif()
+
+  # disable some warnings
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overloaded-virtual")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-const-variable")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-value")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nonnull")
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   if(MSVC_VERSION LESS 1900)
