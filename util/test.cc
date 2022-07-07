@@ -7,6 +7,9 @@
 
 #include "util/test.h"
 
+#include "monolithic_examples.h"
+
+
 namespace testing {
 std::string TempDir() { return "/tmp/"; }
 }  // namespace testing
@@ -24,7 +27,12 @@ void RegisterTest(void (*fn)(void), const char *name) {
   tests[ntests++].name = name;
 }
 
-int main(int argc, char** argv) {
+
+#if defined(BUILD_MONOLITHIC)
+#define main  re2_test_main
+#endif
+
+int main(void) {
   for (int i = 0; i < ntests; i++) {
     printf("%s\n", tests[i].name);
     tests[i].fn();

@@ -6,7 +6,14 @@
 #include <re2/filtered_re2.h>
 #include <re2/re2.h>
 
-int main() {
+#include "monolithic_examples.h"
+
+
+#if defined(BUILD_MONOLITHIC)
+#define main  re2_basic_test_main
+#endif
+
+int main(void) {
   re2::FilteredRE2 f;
   int id;
   f.Add("a.*b.*c", RE2::DefaultOptions, &id);

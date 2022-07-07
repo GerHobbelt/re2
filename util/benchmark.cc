@@ -120,6 +120,11 @@ static bool WantBench(const char* name, int argc, const char** argv) {
   return false;
 }
 
+
+#if defined(BUILD_MONOLITHIC)
+#define main  re2_benchmark_main
+#endif
+
 int main(int argc, const char** argv) {
   for (int i = 0; i < nbenchmarks; i++) {
     Benchmark* b = benchmarks[i];
@@ -128,4 +133,5 @@ int main(int argc, const char** argv) {
     for (int arg = b->lo(); arg <= b->hi(); arg <<= 1)
       RunBench(b, arg);
   }
+  return 0;
 }
