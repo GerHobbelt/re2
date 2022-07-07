@@ -24,6 +24,9 @@
 #include "re2/stringpiece.h"
 #include "re2/walker-inl.h"
 
+#undef min
+#undef max
+
 namespace re2 {
 
 // Constructor.  Allocates vectors as appropriate for operator.

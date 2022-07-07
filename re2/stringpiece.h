@@ -29,6 +29,9 @@
 #include <string_view>
 #endif
 
+#undef min
+#undef max
+
 namespace re2 {
 
 class StringPiece {
