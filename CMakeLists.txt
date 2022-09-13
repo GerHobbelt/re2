@@ -60,7 +60,6 @@ else()
 
   if (EMSCRIPTEN)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -s USE_PTHREADS=1 \
-                                                     -s WASM_WORKERS=0 \
                                                      -s DISABLE_EXCEPTION_CATCHING=0 \
                                                      -s USE_BOOST_HEADERS=1 \
                                                      -Wno-unqualified-std-cast-call \
