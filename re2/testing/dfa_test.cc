@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <algorithm>
 
 #include "util/test.h"
 #include "util/flags.h"
@@ -22,7 +23,7 @@ static const bool UsingMallocCounter = false;
 
 DEFINE_FLAG(int, size, 8, "log2(number of DFA nodes)");
 DEFINE_FLAG(int, repeat, 2, "Repetition count.");
-DEFINE_FLAG(int, threads, 4, "number of threads");
+DEFINE_FLAG(int, threads, std::max<int>(4, std::thread::hardware_concurrency()), "number of threads");
 
 namespace re2 {
 

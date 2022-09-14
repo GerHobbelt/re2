@@ -6,7 +6,7 @@
 #include <re2/filtered_re2.h>
 #include <re2/re2.h>
 
-#include "monolithic_examples.h"
+#include "util/monolithic_examples.h"
 
 
 #if defined(BUILD_MONOLITHIC)

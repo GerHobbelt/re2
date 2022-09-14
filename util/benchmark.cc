@@ -12,6 +12,8 @@
 #include "util/flags.h"
 #include "re2/re2.h"
 
+#include "monolithic_examples.h"
+
 #ifdef _WIN32
 #define snprintf _snprintf
 #endif
