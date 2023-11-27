@@ -17,6 +17,7 @@
 
 #include "absl/base/call_once.h"
 #include "absl/base/macros.h"
+#include "absl/container/flat_hash_map.h"
 #include "absl/synchronization/mutex.h"
 #include "util/logging.h"
 #include "util/utf.h"
@@ -79,7 +80,7 @@ bool Regexp::QuickDestroy() {
 // Similar to EmptyStorage in re2.cc.
 struct RefStorage {
   absl::Mutex ref_mutex;
-  std::map<Regexp*, int> ref_map;
+  absl::flat_hash_map<Regexp*, int> ref_map;
 };
 alignas(RefStorage) static char ref_storage[sizeof(RefStorage)];
 
@@ -87,7 +88,7 @@ static inline absl::Mutex* ref_mutex() {
   return &reinterpret_cast<RefStorage*>(ref_storage)->ref_mutex;
 }
 
-static inline std::map<Regexp*, int>* ref_map() {
+static inline absl::flat_hash_map<Regexp*, int>* ref_map() {
   return &reinterpret_cast<RefStorage*>(ref_storage)->ref_map;
 }
 
