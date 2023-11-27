@@ -2,28 +2,6 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-# Build against Abseil.
-ABSL_DEPS=\
-	absl_base\
-	absl_core_headers\
-	absl_fixed_array\
-	absl_flags\
-	absl_flat_hash_map\
-	absl_flat_hash_set\
-	absl_inlined_vector\
-	absl_optional\
-	absl_span\
-	absl_str_format\
-	absl_strings\
-	absl_synchronization\
-
-PKG_CONFIG?=pkg-config
-CCABSL=$(shell $(PKG_CONFIG) $(ABSL_DEPS) --cflags)
-# GCC barfs on `-Wl` whereas Clang doesn't mind, but it's unclear what
-# causes it to manifest on Ubuntu 22.04 LTS, so filter it out for now.
-# Similar is needed for `static-testinstall` and `shared-testinstall`.
-LDABSL=$(shell $(PKG_CONFIG) $(ABSL_DEPS) --libs | sed -e 's/-Wl / /g')
-
 # To build against ICU for full Unicode properties support,
 # uncomment the next two lines:
 # CCICU=$(shell $(PKG_CONFIG) icu-uc --cflags) -DRE2_USE_ICU
@@ -39,8 +17,8 @@ CXX?=g++
 CXXFLAGS?=-O3 -g
 LDFLAGS?=
 # required
-RE2_CXXFLAGS?=-pthread -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -I. $(CCABSL) $(CCICU) $(CCPCRE)
-RE2_LDFLAGS?=-pthread $(LDABSL) $(LDICU) $(LDPCRE)
+RE2_CXXFLAGS?=-pthread -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -I. $(CCICU) $(CCPCRE)
+RE2_LDFLAGS?=-pthread $(LDICU) $(LDPCRE)
 AR?=ar
 ARFLAGS?=rsc
 NM?=nm
@@ -65,7 +43,7 @@ SED_INPLACE=sed -i
 endif
 
 # The pkg-config Requires: field.
-REQUIRES=$(ABSL_DEPS)
+REQUIRES=
 ifdef LDICU
 REQUIRES+=icu-uc
 endif
@@ -151,6 +129,7 @@ OFILES=\
 	obj/re2/regexp.o\
 	obj/re2/set.o\
 	obj/re2/simplify.o\
+	obj/re2/stringpiece.o\
 	obj/re2/tostring.o\
 	obj/re2/unicode_casefold.o\
 	obj/re2/unicode_groups.o\

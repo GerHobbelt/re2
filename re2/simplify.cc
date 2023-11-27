@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <string>
 
+#include "util/util.h"
 #include "util/logging.h"
 #include "util/utf.h"
 #include "re2/pod_array.h"
@@ -20,7 +21,7 @@ namespace re2 {
 // Parses the regexp src and then simplifies it and sets *dst to the
 // string representation of the simplified form.  Returns true on success.
 // Returns false and sets *error (if error != NULL) on error.
-bool Regexp::SimplifyRegexp(absl::string_view src, ParseFlags flags,
+bool Regexp::SimplifyRegexp(const StringPiece& src, ParseFlags flags,
                             std::string* dst, RegexpStatus* status) {
   Regexp* re = Parse(src, flags, status);
   if (re == NULL)

@@ -39,6 +39,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     message(FATAL_ERROR "you need Visual Studio 2019 or later")
   endif()
   if(BUILD_SHARED_LIBS)
+    # See http://www.kitware.com/blog/home/post/939 for details.
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
   endif()
   # CMake defaults to /W3, but some users like /W4 (or /Wall) and /WX,
@@ -58,29 +59,6 @@ if(UNIX)
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
 endif()
-
-set(ABSL_DEPS
-    absl_base
-    absl_core_headers
-    absl_fixed_array
-    absl_flags
-    absl_flat_hash_map
-    absl_flat_hash_set
-    absl_inlined_vector
-    absl_optional
-    absl_span
-    absl_str_format
-    absl_strings
-    absl_synchronization
-    )
-
-# If a top-level project has called add_directory(abseil-cpp) already (possibly
-# indirectly), let that take precedence over any copy of Abseil that might have
-# been installed on the system. And likewise for ICU, GoogleTest and Benchmark.
-if(NOT TARGET absl::base)
-  find_package(absl REQUIRED)
-endif()
-list(APPEND REQUIRES ${ABSL_DEPS})
 
 if(RE2_USE_ICU)
   if(NOT TARGET ICU::uc)
@@ -115,6 +93,7 @@ set(RE2_SOURCES
     re2/regexp.cc
     re2/set.cc
     re2/simplify.cc
+    re2/stringpiece.cc
     re2/tostring.cc
     re2/unicode_casefold.cc
     re2/unicode_groups.cc
@@ -148,11 +127,6 @@ endif()
 if(UNIX)
   target_link_libraries(re2 PUBLIC Threads::Threads)
 endif()
-
-foreach(dep ${ABSL_DEPS})
-  string(REGEX REPLACE "^absl_" "absl::" dep ${dep})
-  target_link_libraries(re2 PUBLIC ${dep})
-endforeach()
 
 if(RE2_USE_ICU)
   target_link_libraries(re2 PUBLIC ICU::uc)
