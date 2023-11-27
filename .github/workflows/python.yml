@@ -70,6 +70,8 @@ jobs:
       SYSTEM_VERSION_COMPAT: 0
     steps:
       - uses: actions/checkout@v3
+      # TODO(junyer): Use `v2` whenever a new release is tagged.
+      - uses: bazelbuild/setup-bazelisk@6244971d4f7ba9aca943c2f3ede2bbd813fcca51
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.ver }}
@@ -117,6 +119,11 @@ jobs:
       BAZEL_CPU: ${{ matrix.arch.bazel-name }}_windows
     steps:
       - uses: actions/checkout@v3
+      # TODO(junyer): Use `v2` whenever a new release is tagged.
+      - uses: bazelbuild/setup-bazelisk@6244971d4f7ba9aca943c2f3ede2bbd813fcca51
+      # Avoid the Chocolatey install of Bazel getting in the way.
+      - run: choco uninstall -y bazel
+        shell: bash
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.ver }}
