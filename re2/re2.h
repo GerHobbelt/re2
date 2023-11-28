@@ -532,7 +532,7 @@ class RE2 {
     ANCHOR_BOTH         // Anchor at start and end
   };
 
-  // Return the number of capturing subpatterns, or -1 if the
+  // Return the number of capturing sub-patterns, or -1 if the
   // regexp wasn't valid on construction.  The overall match ($0)
   // does not count: if the regexp is "(a)(b)", returns 2.
   int NumberOfCapturingGroups() const { return num_captures_; }
@@ -925,7 +925,7 @@ inline RE2::Arg RE2::Octal(T* ptr) {
 }
 
 // Silence warnings about missing initializers for members of LazyRE2.
-#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 6
+#if !defined(__clang__) && defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 

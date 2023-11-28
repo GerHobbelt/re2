@@ -269,7 +269,7 @@ bool Regexp::ParseState::PushRegexp(Regexp* re) {
 // Searches the case folding tables and returns the CaseFold* that contains r.
 // If there isn't one, returns the CaseFold* with smallest f->lo bigger than r.
 // If there isn't one, returns NULL.
-const CaseFold* LookupCaseFold(const CaseFold *f, int n, Rune r) {
+const CaseFold* LookupCaseFold(const CaseFold* f, int n, Rune r) {
   const CaseFold* ef = f + n;
 
   // Binary search for entry containing r.
@@ -297,7 +297,7 @@ const CaseFold* LookupCaseFold(const CaseFold *f, int n, Rune r) {
 }
 
 // Returns the result of applying the fold f to the rune r.
-Rune ApplyFold(const CaseFold *f, Rune r) {
+Rune ApplyFold(const CaseFold* f, Rune r) {
   switch (f->delta) {
     default:
       return r + f->delta;
@@ -774,8 +774,8 @@ Regexp* Regexp::RemoveLeadingRegexp(Regexp* re) {
 // Returns the leading string that re starts with.
 // The returned Rune* points into a piece of re,
 // so it must not be used after the caller calls re->Decref().
-Rune* Regexp::LeadingString(Regexp* re, int *nrune,
-                            Regexp::ParseFlags *flags) {
+Rune* Regexp::LeadingString(Regexp* re, int* nrune,
+                            Regexp::ParseFlags* flags) {
   while (re->op() == kRegexpConcat && re->nsub() > 0)
     re = re->sub()[0];
 
@@ -1655,7 +1655,7 @@ static const UGroup* LookupUnicodeGroup(const StringPiece& name) {
 #endif
 
 // Add a UGroup or its negation to the character class.
-static void AddUGroup(CharClassBuilder *cc, const UGroup *g, int sign,
+static void AddUGroup(CharClassBuilder* cc, const UGroup* g, int sign,
                       Regexp::ParseFlags parse_flags) {
   if (sign == +1) {
     for (int i = 0; i < g->nr16; i++) {
@@ -1841,7 +1841,7 @@ static ParseStatus ParseCCName(StringPiece* s, Regexp::ParseFlags parse_flags,
   q += 2;
   StringPiece name(p, static_cast<size_t>(q - p));
 
-  const UGroup *g = LookupPosixGroup(name);
+  const UGroup* g = LookupPosixGroup(name);
   if (g == NULL) {
     status->set_code(kRegexpBadCharRange);
     status->set_error_arg(name);
@@ -1979,7 +1979,7 @@ bool Regexp::ParseState::ParseCharClass(StringPiece* s,
     }
 
     // Look for Perl character class symbols (extension).
-    const UGroup *g = MaybeParsePerlCCEscape(s, flags_);
+    const UGroup* g = MaybeParsePerlCCEscape(s, flags_);
     if (g != NULL) {
       AddUGroup(re->ccb_, g, g->sign, flags_);
       continue;
@@ -2062,8 +2062,6 @@ bool Regexp::ParseState::ParsePerlFlags(StringPiece* s) {
     return false;
   }
 
-  t.remove_prefix(2);  // "(?"
-
   // Check for named captures, first introduced in Python's regexp library.
   // As usual, there are three slightly different syntaxes:
   //
@@ -2077,22 +2075,24 @@ bool Regexp::ParseState::ParsePerlFlags(StringPiece* s) {
   // support all three as well.  EcmaScript 4 uses only the Python form.
   //
   // In both the open source world (via Code Search) and the
-  // Google source tree, (?P<expr>name) is the dominant form,
-  // so that's the one we implement.  One is enough.
-  if (t.size() > 2 && t[0] == 'P' && t[1] == '<') {
+  // Google source tree, (?P<name>expr) and (?<name>expr) are the
+  // dominant forms of named captures and both are supported.
+  if ((t.size() > 4 && t[2] == 'P' && t[3] == '<') ||
+      (t.size() > 3 && t[2] == '<')) {
     // Pull out name.
-    size_t end = t.find('>', 2);
+    size_t begin = t[2] == 'P' ? 4 : 3;
+    size_t end = t.find('>', begin);
     if (end == StringPiece::npos) {
-      if (!IsValidUTF8(*s, status_))
+      if (!IsValidUTF8(t, status_))
         return false;
       status_->set_code(kRegexpBadNamedCapture);
-      status_->set_error_arg(*s);
+      status_->set_error_arg(t);
       return false;
     }
 
     // t is "P<name>...", t[end] == '>'
-    StringPiece capture(t.data()-2, end+3);  // "(?P<name>"
-    StringPiece name(t.data()+2, end-2);     // "name"
+    StringPiece capture(t.data(), end+1);            // "(?P<name>"
+    StringPiece name(t.data()+begin, end-begin);     // "name"
     if (!IsValidUTF8(name, status_))
       return false;
     if (!IsValidCaptureName(name)) {
@@ -2106,10 +2106,11 @@ bool Regexp::ParseState::ParsePerlFlags(StringPiece* s) {
       return false;
     }
 
-    s->remove_prefix(
-        static_cast<size_t>(capture.data() + capture.size() - s->data()));
+    s->remove_prefix(capture.size());
     return true;
   }
+
+  t.remove_prefix(2);  // "(?"
 
   bool negated = false;
   bool sawflags = false;
@@ -2454,7 +2455,7 @@ Regexp* Regexp::Parse(const StringPiece& s, ParseFlags global_flags,
           }
         }
 
-        const UGroup *g = MaybeParsePerlCCEscape(&t, ps.flags());
+        const UGroup* g = MaybeParsePerlCCEscape(&t, ps.flags());
         if (g != NULL) {
           Regexp* re = new Regexp(kRegexpCharClass, ps.flags() & ~FoldCase);
           re->ccb_ = new CharClassBuilder;

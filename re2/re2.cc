@@ -1026,7 +1026,7 @@ int RE2::MaxSubmatch(const StringPiece& rewrite) {
   return max;
 }
 
-// Append the "rewrite" string, with backslash subsitutions from "vec",
+// Append the "rewrite" string, with backslash substitutions from "vec",
 // to string "out".
 bool RE2::Rewrite(std::string* out,
                   const StringPiece& rewrite,

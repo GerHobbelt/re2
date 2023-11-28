@@ -766,7 +766,8 @@ DFA::State* DFA::CachedState(int* inst, int ninst, uint32_t flag) {
   // Must have enough memory for new state.
   // In addition to what we're going to allocate,
   // the state cache hash table seems to incur about 40 bytes per
-  // State*, empirically.
+  // State*. Worst case for non-small sets is it being half full, where each
+  // value present takes up 1 byte hash sample plus the pointer itself.
   const int kStateCacheOverhead = 40;
   int nnext = prog_->bytemap_range() + 1;  // + 1 for kByteEndText slot
   int mem = sizeof(State) + nnext*sizeof(std::atomic<State*>);
@@ -1777,6 +1778,8 @@ bool DFA::Search(const StringPiece& text,
   params.anchored = anchored;
   params.want_earliest_match = want_earliest_match;
   params.run_forward = run_forward;
+  // matches should be null except when using RE2::Set.
+  DCHECK(matches == NULL || kind_ == Prog::kManyMatch);
   params.matches = matches;
 
   if (!AnalyzeSearch(&params)) {

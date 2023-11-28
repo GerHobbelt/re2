@@ -22,7 +22,7 @@
 #include "util/strutil.h"
 
 // Silence warnings about the wacky formatting in the operator() functions.
-#if !defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 6
+#if !defined(__clang__) && defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wmisleading-indentation"
 #endif
 

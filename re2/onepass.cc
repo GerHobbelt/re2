@@ -345,7 +345,6 @@ done:
   return true;
 }
 
-
 // Analysis to determine whether a given regexp program is one-pass.
 
 // If ip is not on workq, adds ip to work queue and returns true.
