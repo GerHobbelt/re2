@@ -123,6 +123,7 @@ bad:
 	return 1;
 }
 
+[[ clang::no_sanitize( "integer" ) ]]
 int
 runetochar(char *str, const Rune *rune)
 {
