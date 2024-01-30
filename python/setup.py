@@ -53,10 +53,15 @@ class BuildExt(setuptools.command.build_ext.build_ext):
 
     cmd = ['bazel', 'build']
     try:
-      cmd.append(f'--cpu={os.environ["BAZEL_CPU"].lower()}')
-      cmd.append(f'--platforms=//python:{os.environ["BAZEL_CPU"].lower()}')
+      cpu = os.environ['BAZEL_CPU']
+      cmd.append(f'--cpu={cpu}')
+      cmd.append(f'--platforms=//python:{cpu}')
     except KeyError:
       pass
+    # Register the local Python toolchain with highest priority.
+    cmd.append('--extra_toolchains=@local_config_python//:py_toolchain')
+    # Print debug information during toolchain resolution.
+    cmd.append('--toolchain_resolution_debug=.*')
     cmd += ['--compilation_mode=opt', '--', ':all']
     self.spawn(cmd)
 
