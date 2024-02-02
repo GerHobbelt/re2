@@ -2079,7 +2079,7 @@ bool Regexp::ParseState::ParsePerlFlags(StringPiece* s) {
   if ((t.size() > 3 && (t[2] == '=' || t[2] == '!')) ||
       (t.size() > 4 && t[2] == '<' && (t[3] == '=' || t[3] == '!'))) {
     status_->set_code(kRegexpBadPerlOp);
-    status_->set_error_arg(absl::string_view(t.data(), t[2] == '<' ? 4 : 3));
+    status_->set_error_arg(std::string_view(t.data(), t[2] == '<' ? 4 : 3));
     return false;
   }
 
