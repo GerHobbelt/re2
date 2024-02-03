@@ -3,3 +3,6 @@
 core
 obj/
 benchlog.*
+cmake-build-debug
+build
+.idea
