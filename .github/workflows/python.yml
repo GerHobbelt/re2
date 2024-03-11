@@ -35,8 +35,7 @@ jobs:
       # Stash the timestamp for the commit SHA that triggered the workflow.
       - run: echo "timestamp=$(git log -1 --pretty=%ct)" >> "${GITHUB_ENV}"
         shell: bash
-      # TODO(junyer): Use `v2` whenever a new release is tagged.
-      - uses: bazelbuild/setup-bazelisk@6244971d4f7ba9aca943c2f3ede2bbd813fcca51
+      - uses: bazelbuild/setup-bazelisk@v3
       - name: Prepare Python ${{ matrix.ver }} environment
         run: |
           "${PYTHON}" -m pip install --upgrade pip
@@ -64,14 +63,16 @@ jobs:
           retention-days: 1
   wheel-macos:
     name: macOS ${{ matrix.os }}, ${{ matrix.arch.name }}, Python ${{ matrix.ver }}
-    runs-on: macos-${{ matrix.os }}
+    runs-on: macos-${{ matrix.os }}-large
     strategy:
       fail-fast: false
       matrix:
         arch:
           - { name: X64,   bazel-name: x86_64, python-name: x86_64 }
           - { name: ARM64, bazel-name: arm64,  python-name: arm64  }
-        os: [11, 12, 13]
+        # TODO(junyer): Stop cross-compiling after we drop support for macOS 12;
+        # instead, specify `-large` suffix on X64 and `-xlarge` suffix on ARM64.
+        os: [12, 13, 14]
         ver: ['3.8', '3.9', '3.10', '3.11', '3.12']
     env:
       BAZELISK_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,8 +86,7 @@ jobs:
       # Stash the timestamp for the commit SHA that triggered the workflow.
       - run: echo "timestamp=$(git log -1 --pretty=%ct)" >> "${GITHUB_ENV}"
         shell: bash
-      # TODO(junyer): Use `v2` whenever a new release is tagged.
-      - uses: bazelbuild/setup-bazelisk@6244971d4f7ba9aca943c2f3ede2bbd813fcca51
+      - uses: bazelbuild/setup-bazelisk@v3
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.ver }}
@@ -221,4 +221,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
-          packages_dir: python/dist
+          packages-dir: python/dist
