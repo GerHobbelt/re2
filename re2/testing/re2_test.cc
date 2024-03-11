@@ -1668,7 +1668,7 @@ TEST(RE2, Issue477) {
       (char)0xa5, (char)0xd1, (char)0xa5, (char)0xd1,
       (char)0x61, (char)0x63, (char)0xa5, (char)0x64,
   };
-  std::string s(bytes, ABSL_ARRAYSIZE(bytes));
+  std::string s(bytes, sizeof(bytes) / sizeof(bytes[0]));
   RE2 re("\xa5\xd1|\xa5\x64", RE2::Latin1);
   int n = RE2::GlobalReplace(&s, re, "");
   ASSERT_EQ(n, 3);
