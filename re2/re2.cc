@@ -776,6 +776,9 @@ bool RE2::Match(absl::string_view text,
         if (dfa_failed) {
           if (options_.log_errors())
             ABSL_LOG(ERROR) << "DFA out of memory: "
+                            << "text " << text << ", "
+                            << "subtext " << subtext << ", "
+                            << "anchor " << anchor << ", "
                             << "pattern length " << pattern_->size() << ", "
                             << "program size " << prog_->size() << ", "
                             << "list count " << prog_->list_count() << ", "
