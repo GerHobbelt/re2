@@ -15,7 +15,8 @@
 
 #include "util/test.h"
 #include "util/flags.h"
-#include "util/logging.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/strutil.h"
 #include "re2/testing/exhaustive_tester.h"
 #include "re2/testing/tester.h"

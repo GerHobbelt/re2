@@ -7,8 +7,9 @@
 #include <string.h>
 #include <string>
 
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/test.h"
-#include "util/logging.h"
 #include "re2/regexp.h"
 
 namespace re2 {

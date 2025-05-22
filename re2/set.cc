@@ -9,8 +9,9 @@
 #include <memory>
 #include <utility>
 
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/util.h"
-#include "util/logging.h"
 #include "re2/pod_array.h"
 #include "re2/prog.h"
 #include "re2/re2.h"

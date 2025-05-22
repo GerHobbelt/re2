@@ -7,7 +7,8 @@
 #include <stdint.h>
 
 #include "util/util.h"
-#include "util/logging.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 
 namespace re2 {
 

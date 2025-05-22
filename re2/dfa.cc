@@ -36,7 +36,8 @@
 #include <utility>
 #include <vector>
 
-#include "util/logging.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/mix.h"
 #include "util/mutex.h"
 #include "util/strutil.h"

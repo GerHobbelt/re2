@@ -32,7 +32,8 @@
 #include <utility>
 #include <vector>
 
-#include "util/logging.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/strutil.h"
 #include "re2/pod_array.h"
 #include "re2/prog.h"

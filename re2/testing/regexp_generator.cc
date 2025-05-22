@@ -29,8 +29,9 @@
 #include <string>
 #include <vector>
 
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/test.h"
-#include "util/logging.h"
 #include "util/strutil.h"
 #include "util/utf.h"
 #include "re2/testing/regexp_generator.h"

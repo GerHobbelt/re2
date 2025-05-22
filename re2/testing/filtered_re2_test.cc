@@ -9,8 +9,9 @@
 #include <vector>
 #include <utility>
 
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/test.h"
-#include "util/logging.h"
 #include "re2/filtered_re2.h"
 #include "re2/re2.h"
 

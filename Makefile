@@ -91,7 +91,6 @@ INSTALL_HFILES=\
 	re2/stringpiece.h\
 
 HFILES=\
-	util/logging.h\
 	util/malloc_counter.h\
 	util/pcre.h\
 	util/strutil.h\

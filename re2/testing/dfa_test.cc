@@ -10,7 +10,8 @@
 
 #include "util/test.h"
 #include "util/flags.h"
-#include "util/logging.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/malloc_counter.h"
 #include "util/strutil.h"
 #include "re2/prog.h"

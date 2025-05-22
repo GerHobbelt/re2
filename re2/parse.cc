@@ -25,8 +25,9 @@
 #include <string>
 #include <vector>
 
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "util/util.h"
-#include "util/logging.h"
 #include "util/strutil.h"
 #include "util/utf.h"
 #include "re2/pod_array.h"
