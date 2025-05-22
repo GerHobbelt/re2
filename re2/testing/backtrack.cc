@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "util/util.h"
+#include "absl/base/macros.h"
 #include "absl/log/check.h"
 #include "absl/log/log.h"
 #include "re2/pod_array.h"
@@ -56,9 +56,8 @@ class Backtracker {
  public:
   explicit Backtracker(Prog* prog);
 
-  bool Search(const StringPiece& text, const StringPiece& context,
-              bool anchored, bool longest,
-              StringPiece* submatch, int nsubmatch);
+  bool Search(absl::string_view text, absl::string_view context, bool anchored,
+              bool longest, absl::string_view* submatch, int nsubmatch);
 
  private:
   // Explores from instruction id at string position p looking for a match.
@@ -70,14 +69,14 @@ class Backtracker {
   bool Try(int id, const char* p);
 
   // Search parameters
-  Prog* prog_;              // program being run
-  StringPiece text_;        // text being searched
-  StringPiece context_;     // greater context of text being searched
-  bool anchored_;           // whether search is anchored at text.begin()
-  bool longest_;            // whether search wants leftmost-longest match
-  bool endmatch_;           // whether search must end at text.end()
-  StringPiece *submatch_;   // submatches to fill in
-  int nsubmatch_;           //   # of submatches to fill in
+  Prog* prog_;                   // program being run
+  absl::string_view text_;       // text being searched
+  absl::string_view context_;    // greater context of text being searched
+  bool anchored_;                // whether search is anchored at text.begin()
+  bool longest_;                 // whether search wants leftmost-longest match
+  bool endmatch_;                // whether search must end at text.end()
+  absl::string_view* submatch_;  // submatches to fill in
+  int nsubmatch_;                // # of submatches to fill in
 
   // Search state
   const char* cap_[64];         // capture registers
@@ -97,9 +96,9 @@ Backtracker::Backtracker(Prog* prog)
 }
 
 // Runs a backtracking search.
-bool Backtracker::Search(const StringPiece& text, const StringPiece& context,
+bool Backtracker::Search(absl::string_view text, absl::string_view context,
                          bool anchored, bool longest,
-                         StringPiece* submatch, int nsubmatch) {
+                         absl::string_view* submatch, int nsubmatch) {
   text_ = text;
   context_ = context;
   if (context_.data() == NULL)
@@ -113,17 +112,17 @@ bool Backtracker::Search(const StringPiece& text, const StringPiece& context,
   endmatch_ = prog_->anchor_end();
   submatch_ = submatch;
   nsubmatch_ = nsubmatch;
-  CHECK_LT(2*nsubmatch_, static_cast<int>(arraysize(cap_)));
+  ABSL_CHECK_LT(2*nsubmatch_, static_cast<int>(ABSL_ARRAYSIZE(cap_)));
   memset(cap_, 0, sizeof cap_);
 
   // We use submatch_[0] for our own bookkeeping,
   // so it had better exist.
-  StringPiece sp0;
+  absl::string_view sp0;
   if (nsubmatch < 1) {
     submatch_ = &sp0;
     nsubmatch_ = 1;
   }
-  submatch_[0] = StringPiece();
+  submatch_[0] = absl::string_view();
 
   // Allocate new visited_ bitmap -- size is proportional
   // to text, so have to reallocate on each call to Search.
@@ -159,10 +158,10 @@ bool Backtracker::Visit(int id, const char* p) {
   // Check bitmap.  If we've already explored from here,
   // either it didn't match or it did but we're hoping for a better match.
   // Either way, don't go down that road again.
-  CHECK(p <= text_.data() + text_.size());
+  ABSL_CHECK(p <= text_.data() + text_.size());
   int n = id * static_cast<int>(text_.size()+1) +
           static_cast<int>(p-text_.data());
-  CHECK_LT(n/32, visited_.size());
+  ABSL_CHECK_LT(n/32, visited_.size());
   if (visited_[n/32] & (1 << (n&31)))
     return false;
   visited_[n/32] |= 1 << (n&31);
@@ -204,7 +203,7 @@ bool Backtracker::Try(int id, const char* p) {
 
     case kInstCapture:
       if (0 <= ip->cap() &&
-          ip->cap() < static_cast<int>(arraysize(cap_))) {
+          ip->cap() < static_cast<int>(ABSL_ARRAYSIZE(cap_))) {
         // Capture p to register, but save old value.
         const char* q = cap_[ip->cap()];
         cap_[ip->cap()] = p;
@@ -233,7 +232,7 @@ bool Backtracker::Try(int id, const char* p) {
           (longest_ && p > submatch_[0].data() + submatch_[0].size())) {
         // First match so far - or better match.
         for (int i = 0; i < nsubmatch_; i++)
-          submatch_[i] = StringPiece(
+          submatch_[i] = absl::string_view(
               cap_[2 * i], static_cast<size_t>(cap_[2 * i + 1] - cap_[2 * i]));
       }
       return true;
@@ -244,16 +243,14 @@ bool Backtracker::Try(int id, const char* p) {
 }
 
 // Runs a backtracking search.
-bool Prog::UnsafeSearchBacktrack(const StringPiece& text,
-                                 const StringPiece& context,
-                                 Anchor anchor,
-                                 MatchKind kind,
-                                 StringPiece* match,
+bool Prog::UnsafeSearchBacktrack(absl::string_view text,
+                                 absl::string_view context, Anchor anchor,
+                                 MatchKind kind, absl::string_view* match,
                                  int nmatch) {
   // If full match, we ask for an anchored longest match
   // and then check that match[0] == text.
   // So make sure match[0] exists.
-  StringPiece sp0;
+  absl::string_view sp0;
   if (kind == kFullMatch) {
     anchor = kAnchored;
     if (nmatch < 1) {

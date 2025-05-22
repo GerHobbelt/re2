@@ -12,8 +12,7 @@
 
 #include "absl/log/check.h"
 #include "absl/log/log.h"
-#include "util/util.h"
-#include "util/strutil.h"
+#include "absl/strings/str_format.h"
 #include "util/utf.h"
 #include "re2/re2.h"
 #include "re2/unicode_casefold.h"
@@ -302,8 +301,8 @@ void Prefilter::CrossProduct(const SSet& a, const SSet& b, SSet* dst) {
 Prefilter::Info* Prefilter::Info::Concat(Info* a, Info* b) {
   if (a == NULL)
     return b;
-  DCHECK(a->is_exact_);
-  DCHECK(b && b->is_exact_);
+  ABSL_DCHECK(a->is_exact_);
+  ABSL_DCHECK(b && b->is_exact_);
   Info *ab = new Info();
 
   CrossProduct(a->exact_, b->exact_, &ab->exact_);
@@ -665,7 +664,7 @@ std::string Prefilter::DebugString() const {
   switch (op_) {
     default:
       LOG(DFATAL) << "Bad op in Prefilter::DebugString: " << op_;
-      return StringPrintf("op%d", op_);
+      return absl::StrFormat("op%d", op_);
     case NONE:
       return "*no-matches*";
     case ATOM:

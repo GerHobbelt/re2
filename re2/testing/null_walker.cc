@@ -4,7 +4,7 @@
 
 #include "absl/log/check.h"
 #include "absl/log/log.h"
-#include "util/test.h"
+#include "gtest/gtest.h"
 #include "re2/regexp.h"
 #include "re2/walker-inl.h"
 

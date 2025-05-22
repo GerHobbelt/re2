@@ -10,9 +10,10 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <unordered_map>
 #include <utility>
 
+#include "absl/base/macros.h"
+#include "absl/container/flat_hash_map.h"
 #include "absl/log/check.h"
 #include "absl/log/log.h"
 #include "util/utf.h"
@@ -212,7 +213,7 @@ class Compiler : public Regexp::Walker<Frag> {
 
   int64_t max_mem_;    // Total memory budget.
 
-  std::unordered_map<uint64_t, int> rune_cache_;
+  absl::flat_hash_map<uint64_t, int> rune_cache_;
   Frag rune_range_;
 
   RE2::Anchor anchor_;  // anchor mode for RE2::Set
@@ -479,7 +480,7 @@ static uint64_t MakeRuneCacheKey(uint8_t lo, uint8_t hi, bool foldcase,
 int Compiler::CachedRuneByteSuffix(uint8_t lo, uint8_t hi, bool foldcase,
                                    int next) {
   uint64_t key = MakeRuneCacheKey(lo, hi, foldcase, next);
-  std::unordered_map<uint64_t, int>::const_iterator it = rune_cache_.find(key);
+  absl::flat_hash_map<uint64_t, int>::const_iterator it = rune_cache_.find(key);
   if (it != rune_cache_.end())
     return it->second;
   int id = UncachedRuneByteSuffix(lo, hi, foldcase, next);
@@ -522,7 +523,7 @@ void Compiler::AddSuffix(int id) {
 }
 
 int Compiler::AddSuffixRecursive(int root, int id) {
-  DCHECK(inst_[root].opcode() == kInstAlt ||
+  ABSL_DCHECK(inst_[root].opcode() == kInstAlt ||
          inst_[root].opcode() == kInstByteRange);
 
   Frag f = FindByteRange(root, id);
@@ -565,7 +566,7 @@ int Compiler::AddSuffixRecursive(int root, int id) {
   if (!IsCachedRuneByteSuffix(id)) {
     // The head should be the instruction most recently allocated, so free it
     // instead of leaving it unreachable.
-    DCHECK_EQ(id, ninst_-1);
+    ABSL_DCHECK_EQ(id, ninst_-1);
     inst_[id].out_opcode_ = 0;
     inst_[id].out1_ = 0;
     ninst_--;
@@ -738,7 +739,7 @@ void Compiler::AddRuneRangeUTF8(Rune lo, Rune hi, bool foldcase) {
   int n = runetochar(reinterpret_cast<char*>(ulo), &lo);
   int m = runetochar(reinterpret_cast<char*>(uhi), &hi);
   (void)m;  // USED(m)
-  DCHECK_EQ(n, m);
+  ABSL_DCHECK_EQ(n, m);
 
   // The logic below encodes this thinking:
   //
@@ -1244,7 +1245,7 @@ Prog* Compiler::CompileSet(Regexp* re, RE2::Anchor anchor, int64_t max_mem) {
   // Make sure DFA has enough memory to operate,
   // since we're not going to fall back to the NFA.
   bool dfa_failed = false;
-  StringPiece sp = "hello, world";
+  absl::string_view sp = "hello, world";
   prog->SearchDFA(sp, sp, Prog::kAnchored, Prog::kManyMatch,
                   NULL, &dfa_failed, NULL);
   if (dfa_failed) {

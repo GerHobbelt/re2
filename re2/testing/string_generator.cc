@@ -13,7 +13,7 @@
 
 #include "absl/log/check.h"
 #include "absl/log/log.h"
-#include "util/test.h"
+#include "gtest/gtest.h"
 #include "re2/testing/string_generator.h"
 
 namespace re2 {
@@ -82,11 +82,11 @@ bool StringGenerator::RandomDigits() {
 // currently described by digits_.  Calls IncrementDigits
 // after computing the string, so that it knows the answer
 // for subsequent HasNext() calls.
-const StringPiece& StringGenerator::Next() {
-  CHECK(hasnext_);
+absl::string_view StringGenerator::Next() {
+  ABSL_CHECK(hasnext_);
   if (generate_null_) {
     generate_null_ = false;
-    sp_ = StringPiece();
+    sp_ = absl::string_view();
     return sp_;
   }
   s_.clear();
@@ -113,8 +113,8 @@ void StringGenerator::GenerateNULL() {
 }
 
 std::string DeBruijnString(int n) {
-  CHECK_GE(n, 1);
-  CHECK_LE(n, 29);
+  ABSL_CHECK_GE(n, 1);
+  ABSL_CHECK_LE(n, 29);
   const size_t size = size_t{1} << static_cast<size_t>(n);
   const size_t mask = size - 1;
   std::vector<bool> did(size, false);
@@ -132,10 +132,10 @@ std::string DeBruijnString(int n) {
     } else {
       s += '0';
     }
-    CHECK(!did[bits]);
+    ABSL_CHECK(!did[bits]);
     did[bits] = true;
   }
-  CHECK_EQ(s.size(), static_cast<size_t>(n - 1) + size);
+  ABSL_CHECK_EQ(s.size(), static_cast<size_t>(n - 1) + size);
   return s;
 }
 

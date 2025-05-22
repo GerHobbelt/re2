@@ -4,9 +4,10 @@
 
 #include <string>
 
+#include "absl/base/macros.h"
 #include "absl/log/check.h"
 #include "absl/log/log.h"
-#include "util/test.h"
+#include "gtest/gtest.h"
 #include "re2/prog.h"
 #include "re2/regexp.h"
 
@@ -45,7 +46,7 @@ static PrefixTest tests[] = {
 };
 
 TEST(RequiredPrefix, SimpleTests) {
-  for (size_t i = 0; i < arraysize(tests); i++) {
+  for (size_t i = 0; i < ABSL_ARRAYSIZE(tests); i++) {
     const PrefixTest& t = tests[i];
     for (size_t j = 0; j < 2; j++) {
       Regexp::ParseFlags flags = Regexp::LikePerl;
@@ -107,7 +108,7 @@ static PrefixTest for_accel_tests[] = {
 };
 
 TEST(RequiredPrefixForAccel, SimpleTests) {
-  for (size_t i = 0; i < arraysize(for_accel_tests); i++) {
+  for (size_t i = 0; i < ABSL_ARRAYSIZE(for_accel_tests); i++) {
     const PrefixTest& t = for_accel_tests[i];
     for (size_t j = 0; j < 2; j++) {
       Regexp::ParseFlags flags = Regexp::LikePerl;
@@ -172,7 +173,7 @@ static const char* prefix_accel_tests[] = {
 };
 
 TEST(PrefixAccel, SimpleTests) {
-  for (size_t i = 0; i < arraysize(prefix_accel_tests); i++) {
+  for (size_t i = 0; i < ABSL_ARRAYSIZE(prefix_accel_tests); i++) {
     const char* pattern = prefix_accel_tests[i];
     Regexp* re = Regexp::Parse(pattern, Regexp::LikePerl, NULL);
     ASSERT_TRUE(re != NULL);

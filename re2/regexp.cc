@@ -12,21 +12,18 @@
 #include <string.h>
 #include <algorithm>
 #include <map>
-#include <mutex>
 #include <string>
 #include <vector>
 
+#include "absl/base/call_once.h"
+#include "absl/base/macros.h"
+#include "absl/container/flat_hash_map.h"
 #include "absl/log/check.h"
 #include "absl/log/log.h"
-#include "util/util.h"
-#include "util/mutex.h"
+#include "absl/synchronization/mutex.h"
 #include "util/utf.h"
 #include "re2/pod_array.h"
-#include "re2/stringpiece.h"
 #include "re2/walker-inl.h"
-
-#undef min
-#undef max
 
 namespace re2 {
 
@@ -80,16 +77,16 @@ bool Regexp::QuickDestroy() {
 
 // Similar to EmptyStorage in re2.cc.
 struct RefStorage {
-  Mutex ref_mutex;
-  std::map<Regexp*, int> ref_map;
+  absl::Mutex ref_mutex;
+  absl::flat_hash_map<Regexp*, int> ref_map;
 };
 alignas(RefStorage) static char ref_storage[sizeof(RefStorage)];
 
-static inline Mutex* ref_mutex() {
+static inline absl::Mutex* ref_mutex() {
   return &reinterpret_cast<RefStorage*>(ref_storage)->ref_mutex;
 }
 
-static inline std::map<Regexp*, int>* ref_map() {
+static inline absl::flat_hash_map<Regexp*, int>* ref_map() {
   return &reinterpret_cast<RefStorage*>(ref_storage)->ref_map;
 }
 
@@ -97,20 +94,20 @@ int Regexp::Ref() {
   if (ref_ < kMaxRef)
     return ref_;
 
-  MutexLock l(ref_mutex());
+  absl::MutexLock l(ref_mutex());
   return (*ref_map())[this];
 }
 
 // Increments reference count, returns object as convenience.
 Regexp* Regexp::Incref() {
   if (ref_ >= kMaxRef-1) {
-    static std::once_flag ref_once;
-    std::call_once(ref_once, []() {
+    static absl::once_flag ref_once;
+    absl::call_once(ref_once, []() {
       (void) new (ref_storage) RefStorage;
     });
 
     // Store ref count in overflow map.
-    MutexLock l(ref_mutex());
+    absl::MutexLock l(ref_mutex());
     if (ref_ == kMaxRef) {
       // already overflowed
       (*ref_map())[this]++;
@@ -130,7 +127,7 @@ Regexp* Regexp::Incref() {
 void Regexp::Decref() {
   if (ref_ == kMaxRef) {
     // Ref count is stored in overflow map.
-    MutexLock l(ref_mutex());
+    absl::MutexLock l(ref_mutex());
     int r = (*ref_map())[this] - 1;
     if (r < kMaxRef) {
       ref_ = static_cast<uint16_t>(r);
@@ -183,7 +180,7 @@ void Regexp::Destroy() {
 }
 
 void Regexp::AddRuneToString(Rune r) {
-  DCHECK(op_ == kRegexpLiteralString);
+  ABSL_DCHECK(op_ == kRegexpLiteralString);
   if (nrunes_ == 0) {
     // start with 8
     runes_ = new Rune[8];
@@ -500,7 +497,7 @@ bool Regexp::Equal(Regexp* a, Regexp* b) {
     if (n == 0)
       break;
 
-    DCHECK_GE(n, 2);
+    ABSL_DCHECK_GE(n, 2);
     a = stk[n-2];
     b = stk[n-1];
     stk.resize(n-2);
@@ -529,7 +526,7 @@ static const char *kErrorStrings[] = {
 };
 
 std::string RegexpStatus::CodeText(enum RegexpStatusCode code) {
-  if (code < 0 || code >= arraysize(kErrorStrings))
+  if (code < 0 || code >= ABSL_ARRAYSIZE(kErrorStrings))
     code = kRegexpInternalError;
   return kErrorStrings[code];
 }
@@ -997,7 +994,7 @@ CharClass* CharClassBuilder::GetCharClass() {
   for (iterator it = begin(); it != end(); ++it)
     cc->ranges_[n++] = *it;
   cc->nranges_ = n;
-  DCHECK_LE(n, static_cast<int>(ranges_.size()));
+  ABSL_DCHECK_LE(n, static_cast<int>(ranges_.size()));
   cc->nrunes_ = nrunes_;
   cc->folds_ascii_ = FoldsASCII();
   return cc;
