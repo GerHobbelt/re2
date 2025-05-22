@@ -142,7 +142,7 @@ class DFA {
 
   struct StateHash {
     size_t operator()(const State* a) const {
-      DCHECK(a != NULL);
+      DCHECK(a != nullptr);
       HashMix mix(a->flag_);
       for (int i = 0; i < a->ninst_; i++)
         mix.Mix(a->inst_[i]);
@@ -153,8 +153,8 @@ class DFA {
 
   struct StateEqual {
     bool operator()(const State* a, const State* b) const {
-      DCHECK(a != NULL);
-      DCHECK(b != NULL);
+      DCHECK(a != nullptr);
+      DCHECK(b != nullptr);
       if (a == b)
         return true;
       if (a->flag_ != b->flag_)

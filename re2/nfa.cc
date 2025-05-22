@@ -173,13 +173,13 @@ NFA::Thread* NFA::AllocThread() {
 }
 
 NFA::Thread* NFA::Incref(Thread* t) {
-  DCHECK(t != NULL);
+  DCHECK(t != nullptr);
   t->ref++;
   return t;
 }
 
 void NFA::Decref(Thread* t) {
-  DCHECK(t != NULL);
+  DCHECK(t != nullptr);
   t->ref--;
   if (t->ref > 0)
     return;
