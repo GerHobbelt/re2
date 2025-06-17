@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "absl/log/check.h"
-#include "absl/log/log.h"
+#include "absl/log/absl_check.h"
+#include "absl/log/absl_log.h"
 #include "gtest/gtest.h"
 #include "re2/testing/string_generator.h"
 

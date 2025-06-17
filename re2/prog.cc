@@ -20,8 +20,8 @@
 #include <utility>
 
 #include "absl/base/macros.h"
-#include "absl/log/check.h"
-#include "absl/log/log.h"
+#include "absl/log/absl_check.h"
+#include "absl/log/absl_log.h"
 #include "absl/strings/str_format.h"
 #include "re2/bitmap256.h"
 
@@ -199,7 +199,7 @@ static bool IsMatch(Prog* prog, Prog::Inst* ip) {
   for (;;) {
     switch (ip->opcode()) {
       default:
-        LOG(DFATAL) << "Unexpected opcode in IsMatch: " << ip->opcode();
+        ABSL_LOG(DFATAL) << "Unexpected opcode in IsMatch: " << ip->opcode();
         return false;
 
       case kInstAlt:
@@ -512,7 +512,7 @@ void Prog::ComputeByteMap() {
   builder.Build(bytemap_, &bytemap_range_);
 
   if ((0)) {  // For debugging, use trivial bytemap.
-    LOG(ERROR) << "Using trivial bytemap.";
+    ABSL_LOG(ERROR) << "Using trivial bytemap.";
     for (int i = 0; i < 256; i++)
       bytemap_[i] = static_cast<uint8_t>(i);
     bytemap_range_ = 256;
@@ -678,7 +678,7 @@ void Prog::MarkSuccessors(SparseArray<int>* rootmap,
     Inst* ip = inst(id);
     switch (ip->opcode()) {
       default:
-        LOG(DFATAL) << "unhandled opcode: " << ip->opcode();
+        ABSL_LOG(DFATAL) << "unhandled opcode: " << ip->opcode();
         break;
 
       case kInstAltMatch:
@@ -738,7 +738,7 @@ void Prog::MarkDominator(int root, SparseArray<int>* rootmap,
     Inst* ip = inst(id);
     switch (ip->opcode()) {
       default:
-        LOG(DFATAL) << "unhandled opcode: " << ip->opcode();
+        ABSL_LOG(DFATAL) << "unhandled opcode: " << ip->opcode();
         break;
 
       case kInstAltMatch:
@@ -805,7 +805,7 @@ void Prog::EmitList(int root, SparseArray<int>* rootmap,
     Inst* ip = inst(id);
     switch (ip->opcode()) {
       default:
-        LOG(DFATAL) << "unhandled opcode: " << ip->opcode();
+        ABSL_LOG(DFATAL) << "unhandled opcode: " << ip->opcode();
         break;
 
       case kInstAltMatch:

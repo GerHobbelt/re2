@@ -32,8 +32,8 @@
 #include <utility>
 #include <vector>
 
-#include "absl/log/check.h"
-#include "absl/log/log.h"
+#include "absl/log/absl_check.h"
+#include "absl/log/absl_log.h"
 #include "absl/strings/str_format.h"
 #include "re2/pod_array.h"
 #include "re2/prog.h"
@@ -239,7 +239,7 @@ void NFA::AddToThreadq(Threadq* q, int id0, int c, absl::string_view context,
     Prog::Inst* ip = prog_->inst(id);
     switch (ip->opcode()) {
     default:
-      LOG(DFATAL) << "unhandled " << ip->opcode() << " in AddToThreadq";
+      ABSL_LOG(DFATAL) << "unhandled " << ip->opcode() << " in AddToThreadq";
       break;
 
     case kInstFail:
@@ -351,7 +351,7 @@ int NFA::Step(Threadq* runq, Threadq* nextq, int c, absl::string_view context,
     switch (ip->opcode()) {
       default:
         // Should only see the values handled below.
-        LOG(DFATAL) << "Unhandled " << ip->opcode() << " in step";
+        ABSL_LOG(DFATAL) << "Unhandled " << ip->opcode() << " in step";
         break;
 
       case kInstByteRange:
@@ -456,7 +456,7 @@ bool NFA::Search(absl::string_view text, absl::string_view context,
 
   // Sanity check: make sure that text lies within context.
   if (BeginPtr(text) < BeginPtr(context) || EndPtr(text) > EndPtr(context)) {
-    LOG(DFATAL) << "context does not contain text";
+    ABSL_LOG(DFATAL) << "context does not contain text";
     return false;
   }
 
@@ -471,7 +471,7 @@ bool NFA::Search(absl::string_view text, absl::string_view context,
   }
 
   if (nsubmatch < 0) {
-    LOG(DFATAL) << "Bad args: nsubmatch=" << nsubmatch;
+    ABSL_LOG(DFATAL) << "Bad args: nsubmatch=" << nsubmatch;
     return false;
   }
 
@@ -539,7 +539,8 @@ bool NFA::Search(absl::string_view text, absl::string_view context,
         Prog::Inst* ip = prog_->inst(id);
         switch (ip->opcode()) {
           default:
-            LOG(DFATAL) << "Unexpected opcode in short circuit: " << ip->opcode();
+            ABSL_LOG(DFATAL) << "Unexpected opcode in short circuit: "
+                             << ip->opcode();
             break;
 
           case kInstCapture:
@@ -669,7 +670,8 @@ void Prog::Fanout(SparseArray<int>* fanout) {
       Prog::Inst* ip = inst(id);
       switch (ip->opcode()) {
         default:
-          LOG(DFATAL) << "unhandled " << ip->opcode() << " in Prog::Fanout()";
+          ABSL_LOG(DFATAL) << "unhandled " << ip->opcode()
+                           << " in Prog::Fanout()";
           break;
 
         case kInstByteRange:

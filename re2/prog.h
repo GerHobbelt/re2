@@ -16,8 +16,8 @@
 #include <type_traits>
 
 #include "absl/base/call_once.h"
-#include "absl/log/check.h"
-#include "absl/log/log.h"
+#include "absl/log/absl_check.h"
+#include "absl/log/absl_log.h"
 #include "absl/strings/string_view.h"
 #include "re2/pod_array.h"
 #include "re2/re2.h"
@@ -80,17 +80,41 @@ class Prog {
 
     // Getters
     int id(Prog* p) { return static_cast<int>(this - p->inst_.data()); }
-    InstOp opcode() { return static_cast<InstOp>(out_opcode_&7); }
-    int last()      { return (out_opcode_>>3)&1; }
-    int out()       { return out_opcode_>>4; }
-    int out1()      { ABSL_DCHECK(opcode() == kInstAlt || opcode() == kInstAltMatch); return out1_; }
-    int cap()       { ABSL_DCHECK_EQ(opcode(), kInstCapture); return cap_; }
-    int lo()        { ABSL_DCHECK_EQ(opcode(), kInstByteRange); return lo_; }
-    int hi()        { ABSL_DCHECK_EQ(opcode(), kInstByteRange); return hi_; }
-    int foldcase()  { ABSL_DCHECK_EQ(opcode(), kInstByteRange); return hint_foldcase_&1; }
-    int hint()      { ABSL_DCHECK_EQ(opcode(), kInstByteRange); return hint_foldcase_>>1; }
-    int match_id()  { ABSL_DCHECK_EQ(opcode(), kInstMatch); return match_id_; }
-    EmptyOp empty() { ABSL_DCHECK_EQ(opcode(), kInstEmptyWidth); return empty_; }
+    InstOp opcode() { return static_cast<InstOp>(out_opcode_ & 7); }
+    int last() { return (out_opcode_ >> 3) & 1; }
+    int out() { return out_opcode_ >> 4; }
+    int out1() {
+      ABSL_DCHECK(opcode() == kInstAlt || opcode() == kInstAltMatch);
+      return out1_;
+    }
+    int cap() {
+      ABSL_DCHECK_EQ(opcode(), kInstCapture);
+      return cap_;
+    }
+    int lo() {
+      ABSL_DCHECK_EQ(opcode(), kInstByteRange);
+      return lo_;
+    }
+    int hi() {
+      ABSL_DCHECK_EQ(opcode(), kInstByteRange);
+      return hi_;
+    }
+    int foldcase() {
+      ABSL_DCHECK_EQ(opcode(), kInstByteRange);
+      return hint_foldcase_ & 1;
+    }
+    int hint() {
+      ABSL_DCHECK_EQ(opcode(), kInstByteRange);
+      return hint_foldcase_ >> 1;
+    }
+    int match_id() {
+      ABSL_DCHECK_EQ(opcode(), kInstMatch);
+      return match_id_;
+    }
+    EmptyOp empty() {
+      ABSL_DCHECK_EQ(opcode(), kInstEmptyWidth);
+      return empty_;
+    }
 
     bool greedy(Prog* p) {
       ABSL_DCHECK_EQ(opcode(), kInstAltMatch);

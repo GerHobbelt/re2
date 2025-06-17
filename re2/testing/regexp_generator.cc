@@ -30,8 +30,8 @@
 #include <vector>
 
 #include "absl/base/macros.h"
-#include "absl/log/check.h"
-#include "absl/log/log.h"
+#include "absl/log/absl_check.h"
+#include "absl/log/absl_log.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "gtest/gtest.h"
@@ -197,7 +197,7 @@ void RegexpGenerator::RunPostfix(const std::vector<std::string>& post) {
   for (size_t i = 0; i < post.size(); i++) {
     switch (CountArgs(post[i])) {
       default:
-        LOG(FATAL) << "Bad operator: " << post[i];
+        ABSL_LOG(FATAL) << "Bad operator: " << post[i];
       case 0:
         regexps.push(post[i]);
         break;
@@ -233,7 +233,7 @@ void RegexpGenerator::RunPostfix(const std::vector<std::string>& post) {
       absl::PrintF("  %s\n", absl::CEscape(regexps.top()));
       regexps.pop();
     }
-    LOG(FATAL) << "Bad regexp program.";
+    ABSL_LOG(FATAL) << "Bad regexp program.";
   }
 
   HandleRegexp(regexps.top());

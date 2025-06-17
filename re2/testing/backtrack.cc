@@ -13,7 +13,7 @@
 // THIS CODE SHOULD NEVER BE USED IN PRODUCTION:
 //   - It uses a ton of memory.
 //   - It uses a ton of stack.
-//   - It uses CHECK and LOG(FATAL).
+//   - It uses ABSL_CHECK() and ABSL_LOG(FATAL).
 //   - It implements unanchored search by repeated anchored search.
 //
 // On the other hand, it is very simple and a good reference
@@ -28,8 +28,8 @@
 #include <string.h>
 
 #include "absl/base/macros.h"
-#include "absl/log/check.h"
-#include "absl/log/log.h"
+#include "absl/log/absl_check.h"
+#include "absl/log/absl_log.h"
 #include "re2/pod_array.h"
 #include "re2/prog.h"
 #include "re2/regexp.h"
@@ -189,7 +189,7 @@ bool Backtracker::Try(int id, const char* p) {
   Prog::Inst* ip = prog_->inst(id);
   switch (ip->opcode()) {
     default:
-      LOG(FATAL) << "Unexpected opcode: " << (int)ip->opcode();
+      ABSL_LOG(FATAL) << "Unexpected opcode: " << ip->opcode();
       return false;  // not reached
 
     case kInstAltMatch:
