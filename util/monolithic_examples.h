@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 int re2_benchmark_main(int argc, const char** argv);
+int re2_orpheus_test_main(int argc, const char** argv);
 int re2_basic_test_main(void);
 int re2_test_main(void);
 

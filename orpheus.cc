@@ -11,7 +11,14 @@ using namespace re2;
 
 // adapted from https://stackoverflow.com/questions/25889065/how-to-use-re2-library-when-match-arguments-are-unknown
 
-int main(int argc, char* argv[]) {
+#include "util/monolithic_examples.h"
+
+
+#if defined(BUILD_MONOLITHIC)
+#define main  re2_orpheus_test_main
+#endif
+
+int main(int argc, const char** argv) {
     string regex = "the(?<=el(?<=e.*).*)";
     string text = "hellothere";
     if (argc == 3) {
@@ -33,7 +40,7 @@ int main(int argc, char* argv[]) {
 
     // parse regex
     RegexpStatus status;
-    Regexp::ParseFlags flags;
+	Regexp::ParseFlags flags = Regexp::ParseFlags::NoParseFlags;
     Regexp* parsed = Regexp::Parse(regex, flags, &status);
     printf("Parsed regex: \n\t%s\n", parsed->Dump().c_str());
 
