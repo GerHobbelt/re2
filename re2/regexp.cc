@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+
 #include <algorithm>
 #include <map>
 #include <string>
@@ -21,9 +22,9 @@
 #include "absl/log/absl_check.h"
 #include "absl/log/absl_log.h"
 #include "absl/synchronization/mutex.h"
-#include "util/utf.h"
 #include "re2/pod_array.h"
 #include "re2/walker-inl.h"
+#include "util/utf.h"
 
 namespace re2 {
 
@@ -497,7 +498,7 @@ bool Regexp::Equal(Regexp* a, Regexp* b) {
     if (n == 0)
       break;
 
-    ABSL_DCHECK_GE(n, 2);
+    ABSL_DCHECK_GE(n, size_t{2});
     a = stk[n-2];
     b = stk[n-1];
     stk.resize(n-2);

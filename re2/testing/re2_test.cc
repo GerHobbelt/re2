@@ -5,26 +5,29 @@
 
 // TODO: Test extractions for PartialMatch/Consume
 
+#include "re2/re2.h"
+
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
-#if !defined(_MSC_VER) && !defined(__CYGWIN__) && !defined(__MINGW32__)
-#include <sys/mman.h>
-#include <unistd.h>  /* for sysconf */
-#endif
 
 #include "absl/base/macros.h"
-#include "absl/log/absl_check.h"
 #include "absl/log/absl_log.h"
 #include "absl/strings/str_format.h"
+#include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
-#include "re2/re2.h"
 #include "re2/regexp.h"
+
+#if !defined(_MSC_VER) && !defined(__CYGWIN__) && !defined(__MINGW32__)
+#include <sys/mman.h>
+#include <unistd.h>
+#endif
 
 namespace re2 {
 
@@ -555,14 +558,14 @@ TEST(Capture, NamedGroups) {
     RE2 re("(hello world)");
     ASSERT_EQ(re.NumberOfCapturingGroups(), 1);
     const std::map<std::string, int>& m = re.NamedCapturingGroups();
-    ASSERT_EQ(m.size(), 0);
+    ASSERT_EQ(m.size(), size_t{0});
   }
 
   {
     RE2 re("(?P<A>expr(?P<B>expr)(?P<C>expr))((expr)(?P<D>expr))");
     ASSERT_EQ(re.NumberOfCapturingGroups(), 6);
     const std::map<std::string, int>& m = re.NamedCapturingGroups();
-    ASSERT_EQ(m.size(), 4);
+    ASSERT_EQ(m.size(), size_t{4});
     ASSERT_EQ(m.find("A")->second, 1);
     ASSERT_EQ(m.find("B")->second, 2);
     ASSERT_EQ(m.find("C")->second, 3);
@@ -684,7 +687,7 @@ TEST(RE2, FullMatchStringViewArg) {
   absl::string_view sp;
   // string_view-arg
   ASSERT_TRUE(RE2::FullMatch("ruby:1234", "(\\w+):(\\d+)", &sp, &i));
-  ASSERT_EQ(sp.size(), 4);
+  ASSERT_EQ(sp.size(), size_t{4});
   ASSERT_TRUE(memcmp(sp.data(), "ruby", 4) == 0);
   ASSERT_EQ(i, 1234);
 }
@@ -794,6 +797,11 @@ TEST(RE2, FullMatchTypeTests) {
     ASSERT_EQ(c, 'H');
   }
   {
+    signed char c;
+    ASSERT_TRUE(RE2::FullMatch("Hello", "(H)ello", &c));
+    ASSERT_EQ(c, static_cast<signed char>('H'));
+  }
+  {
     unsigned char c;
     ASSERT_TRUE(RE2::FullMatch("Hello", "(H)ello", &c));
     ASSERT_EQ(c, static_cast<unsigned char>('H'));
@@ -838,7 +846,7 @@ TEST(RE2, FullMatchTypeTests) {
   {
     uint32_t v;
     static const uint32_t max = UINT32_C(0xffffffff);
-    ASSERT_TRUE(RE2::FullMatch("100",         "(\\d+)", &v)); ASSERT_EQ(v, 100);
+    ASSERT_TRUE(RE2::FullMatch("100",         "(\\d+)", &v)); ASSERT_EQ(v, uint32_t{100});
     ASSERT_TRUE(RE2::FullMatch("4294967295",  "(\\d+)", &v)); ASSERT_EQ(v, max);
     ASSERT_FALSE(RE2::FullMatch("4294967296", "(\\d+)", &v));
     ASSERT_FALSE(RE2::FullMatch("-1",         "(\\d+)", &v));
@@ -876,7 +884,7 @@ TEST(RE2, FullMatchTypeTests) {
     static const uint64_t max = UINT64_C(0xffffffffffffffff);
     std::string str;
 
-    ASSERT_TRUE(RE2::FullMatch("100",  "(-?\\d+)", &v));  ASSERT_EQ(v, 100);
+    ASSERT_TRUE(RE2::FullMatch("100",  "(-?\\d+)", &v));  ASSERT_EQ(v, uint64_t{100});
     ASSERT_TRUE(RE2::FullMatch("-100", "(-?\\d+)", &v2)); ASSERT_EQ(v2, -100);
 
     str = std::to_string(max);
@@ -894,11 +902,11 @@ TEST(RE2, FloatingPointFullMatchTypes) {
     float v;
     ASSERT_TRUE(RE2::FullMatch("100",   "(.*)", &v)); ASSERT_EQ(v, 100);
     ASSERT_TRUE(RE2::FullMatch("-100.", "(.*)", &v)); ASSERT_EQ(v, -100);
-    ASSERT_TRUE(RE2::FullMatch("1e23",  "(.*)", &v)); ASSERT_EQ(v, float(1e23));
+    ASSERT_TRUE(RE2::FullMatch("1e23",  "(.*)", &v)); ASSERT_EQ(v, float{1e23});
     ASSERT_TRUE(RE2::FullMatch(" 100",  "(.*)", &v)); ASSERT_EQ(v, 100);
 
     ASSERT_TRUE(RE2::FullMatch(zeros + "1e23",  "(.*)", &v));
-    ASSERT_EQ(v, float(1e23));
+    ASSERT_EQ(v, float{1e23});
 
     // 6700000000081920.1 is an edge case.
     // 6700000000081920 is exactly halfway between
@@ -927,9 +935,11 @@ TEST(RE2, FloatingPointFullMatchTypes) {
     double v;
     ASSERT_TRUE(RE2::FullMatch("100",   "(.*)", &v)); ASSERT_EQ(v, 100);
     ASSERT_TRUE(RE2::FullMatch("-100.", "(.*)", &v)); ASSERT_EQ(v, -100);
-    ASSERT_TRUE(RE2::FullMatch("1e23",  "(.*)", &v)); ASSERT_EQ(v, 1e23);
+    ASSERT_TRUE(RE2::FullMatch("1e23",  "(.*)", &v)); ASSERT_EQ(v, double{1e23});
+    ASSERT_TRUE(RE2::FullMatch(" 100",  "(.*)", &v)); ASSERT_EQ(v, 100);
+
     ASSERT_TRUE(RE2::FullMatch(zeros + "1e23", "(.*)", &v));
-    ASSERT_EQ(v, double(1e23));
+    ASSERT_EQ(v, double{1e23});
 
     ASSERT_TRUE(RE2::FullMatch("0.1", "(.*)", &v));
     ASSERT_EQ(v, 0.1) << absl::StrFormat("%.17g != %.17g", v, 0.1);

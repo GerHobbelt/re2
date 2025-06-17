@@ -7,36 +7,43 @@
 
 #include "re2/prog.h"
 
+#include <stdint.h>
+#include <string.h>
+
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "absl/base/attributes.h"
+#include "absl/log/absl_check.h"
+#include "absl/log/absl_log.h"
+#include "absl/strings/str_format.h"
+#include "absl/strings/string_view.h"
+#include "re2/bitmap256.h"
+#include "re2/pod_array.h"
+#include "re2/sparse_array.h"
+#include "re2/sparse_set.h"
+
 #if defined(__AVX2__)
 #include <immintrin.h>
 #ifdef _MSC_VER
 #include <intrin.h>
 #endif
 #endif
-#include <stdint.h>
-#include <string.h>
-#include <algorithm>
-#include <memory>
-#include <utility>
-
-#include "absl/base/macros.h"
-#include "absl/log/absl_check.h"
-#include "absl/log/absl_log.h"
-#include "absl/strings/str_format.h"
-#include "re2/bitmap256.h"
 
 namespace re2 {
 
 // Constructors per Inst opcode
 
 void Prog::Inst::InitAlt(uint32_t out, uint32_t out1) {
-  ABSL_DCHECK_EQ(out_opcode_, 0);
+  ABSL_DCHECK_EQ(out_opcode_, uint32_t{0});
   set_out_opcode(out, kInstAlt);
   out1_ = out1;
 }
 
 void Prog::Inst::InitByteRange(int lo, int hi, int foldcase, uint32_t out) {
-  ABSL_DCHECK_EQ(out_opcode_, 0);
+  ABSL_DCHECK_EQ(out_opcode_, uint32_t{0});
   set_out_opcode(out, kInstByteRange);
   lo_ = lo & 0xFF;
   hi_ = hi & 0xFF;
@@ -44,30 +51,30 @@ void Prog::Inst::InitByteRange(int lo, int hi, int foldcase, uint32_t out) {
 }
 
 void Prog::Inst::InitCapture(int cap, uint32_t out) {
-  ABSL_DCHECK_EQ(out_opcode_, 0);
+  ABSL_DCHECK_EQ(out_opcode_, uint32_t{0});
   set_out_opcode(out, kInstCapture);
   cap_ = cap;
 }
 
 void Prog::Inst::InitEmptyWidth(EmptyOp empty, uint32_t out) {
-  ABSL_DCHECK_EQ(out_opcode_, 0);
+  ABSL_DCHECK_EQ(out_opcode_, uint32_t{0});
   set_out_opcode(out, kInstEmptyWidth);
   empty_ = empty;
 }
 
 void Prog::Inst::InitMatch(int32_t id) {
-  ABSL_DCHECK_EQ(out_opcode_, 0);
+  ABSL_DCHECK_EQ(out_opcode_, uint32_t{0});
   set_opcode(kInstMatch);
   match_id_ = id;
 }
 
 void Prog::Inst::InitNop(uint32_t out) {
-  ABSL_DCHECK_EQ(out_opcode_, 0);
+  ABSL_DCHECK_EQ(out_opcode_, uint32_t{0});
   set_opcode(kInstNop);
 }
 
 void Prog::Inst::InitFail() {
-  ABSL_DCHECK_EQ(out_opcode_, 0);
+  ABSL_DCHECK_EQ(out_opcode_, uint32_t{0});
   set_opcode(kInstFail);
 }
 
@@ -1106,7 +1113,7 @@ const void* Prog::PrefixAccel_ShiftDFA(const void* data, size_t size) {
 #if defined(__AVX2__)
 // Finds the least significant non-zero bit in n.
 static int FindLSBSet(uint32_t n) {
-  ABSL_DCHECK_NE(n, 0);
+  ABSL_DCHECK_NE(n, uint32_t{0});
 #if defined(__GNUC__)
   return __builtin_ctz(n);
 #elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
@@ -1128,7 +1135,7 @@ static int FindLSBSet(uint32_t n) {
 #endif
 
 const void* Prog::PrefixAccel_FrontAndBack(const void* data, size_t size) {
-  ABSL_DCHECK_GE(prefix_size_, 2);
+  ABSL_DCHECK_GE(prefix_size_, size_t{2});
   if (size < prefix_size_)
     return NULL;
   // Don't bother searching the last prefix_size_-1 bytes for prefix_front_.
